@@ -4,7 +4,7 @@ node_modules
 cache
 artifacts
 archive
-test_all
+test_archive
 bin
 *.config.js
 *.vscode
