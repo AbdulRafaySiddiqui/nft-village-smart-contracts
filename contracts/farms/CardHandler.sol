@@ -37,6 +37,7 @@ contract CardHandler is BaseStructs, Ownable, ERC721Holder, ERC1155Holder, ICard
   INFTVillageCards[] public poolcards;
   mapping(uint256 => mapping(uint256 => mapping(address => NftDepositInfo))) userNftInfo;
   mapping(uint256 => mapping(uint256 => NftDeposit[])) public poolRequiredCards;
+  mapping(uint256 => mapping(uint256 => mapping(uint256 => bool))) public validRequiredCard;
 
   constructor(address _chief) {
     require(_chief != address(0), "CardHandler: NFTVillageChief zero address");
