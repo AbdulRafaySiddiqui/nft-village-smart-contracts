@@ -56,6 +56,7 @@ interface BaseStructs {
     uint16 withdrawlFeeReliefInterval;
     uint256 minDeposit;
     uint256 harvestInterval;
+    bool minRequiredCards;
   }
 
   struct RewardInfo {
