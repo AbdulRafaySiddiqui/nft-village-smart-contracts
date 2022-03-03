@@ -176,6 +176,7 @@ contract ProjectHandler is BaseStructs, IProjectHandler, Ownable {
     pool.minWithdrawlFee = _pool.minWithdrawlFee;
     pool.maxWithdrawlFee = _pool.maxWithdrawlFee;
     pool.withdrawlFeeReliefInterval = _pool.withdrawlFeeReliefInterval;
+    pool.minRequiredCards = _pool.minRequiredCards;
 
     RewardInfo[] storage __rewardInfo = rewardInfo[projectId][poolId];
     for (uint256 i = 0; i < _rewardInfo.length; i++) {
