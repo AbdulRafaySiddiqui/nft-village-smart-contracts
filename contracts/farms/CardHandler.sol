@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/INFTVillageCards.sol";
 import "../interfaces/ICardHandler.sol";
+import "../interfaces/IProjectHandler.sol";
 import "../general/BaseStructs.sol";
 
 contract CardHandler is BaseStructs, Ownable, ERC721Holder, ERC1155Holder, ICardHandler {
@@ -37,7 +38,10 @@ contract CardHandler is BaseStructs, Ownable, ERC721Holder, ERC1155Holder, ICard
   INFTVillageCards[] public poolcards;
   mapping(uint256 => mapping(uint256 => mapping(address => NftDepositInfo))) userNftInfo;
   mapping(uint256 => mapping(uint256 => NftDeposit[])) public poolRequiredCards;
-  mapping(uint256 => mapping(uint256 => mapping(uint256 => bool))) public validRequiredCard;
+  // projectId => poolId => tokenId => amount
+  mapping(uint256 => mapping(uint256 => mapping(uint256 => uint256))) public validRequiredCardAmount;
+  // projectId => poolId => tokenId => bool (true if card is deposited)
+  mapping(uint256 => mapping(uint256 => mapping(uint256 => bool))) public requiredCardDeposited;
 
   constructor(address _chief) {
     require(_chief != address(0), "CardHandler: NFTVillageChief zero address");
@@ -96,8 +100,13 @@ contract CardHandler is BaseStructs, Ownable, ERC721Holder, ERC1155Holder, ICard
     NftDeposit[] calldata _requiredCards
   ) external override onlyProjectHandler {
     for (uint256 i = 0; i < _requiredCards.length; i++) {
+      require(_requiredCards[i].amount > 0, "CardHandler: Invalid required card amount!");
+      require(
+        validRequiredCardAmount[_projectId][_poolId][_requiredCards[i].tokenId] == 0,
+        "CardHandler: Duplicate required card!"
+      );
       poolRequiredCards[_projectId][_poolId].push(_requiredCards[i]);
-      validRequiredCard[_projectId][_poolId][_requiredCards[i].tokenId] = true;
+      validRequiredCardAmount[_projectId][_poolId][_requiredCards[i].tokenId] = _requiredCards[i].amount;
     }
   }
 
@@ -108,7 +117,7 @@ contract CardHandler is BaseStructs, Ownable, ERC721Holder, ERC1155Holder, ICard
     uint256 poolId,
     NftDeposit[] calldata cards
   ) external override onlyNFTVillageChief inDeposit returns (uint256) {
-    if (CardType(cardType) == CardType.REQUIRED) useRequiredCard(user, projectId, poolId);
+    if (CardType(cardType) == CardType.REQUIRED) useRequiredCard(user, projectId, poolId, cards);
     else if (CardType(cardType) == CardType.FEE_DISCOUNT) return useFeeCard(user, projectId, poolId, cards);
     else if (CardType(cardType) == CardType.HARVEST_RELIEF) return useHarvestCard(user, projectId, poolId, cards);
     else if (CardType(cardType) == CardType.MULTIPLIER) return useMultiplierCard(user, projectId, poolId, cards);
@@ -132,17 +141,22 @@ contract CardHandler is BaseStructs, Ownable, ERC721Holder, ERC1155Holder, ICard
   function useRequiredCard(
     address user,
     uint256 projectId,
-    uint256 poolId
+    uint256 poolId,
+    NftDeposit[] memory cards
   ) private {
     INFTVillageCards poolCards = poolcards[projectId];
 
+    PoolInfo memory _pool = IProjectHandler(projectHandler).getPoolInfo(projectId, poolId);
     NftDeposit[] storage _userNft = userNftInfo[projectId][poolId][user].required;
-    NftDeposit[] storage _requiredCards = poolRequiredCards[projectId][poolId];
-    if (_userNft.length == _requiredCards.length) return; // required cards are already deposited, we can move on
+    if (_userNft.length == _pool.minRequiredCards) return; // required cards are already deposited, we can move on
 
-    for (uint256 i = 0; i < _requiredCards.length; i++) {
-      poolCards.safeTransferFrom(user, address(this), _requiredCards[i].tokenId, _requiredCards[i].amount, "");
-      _userNft.push(_requiredCards[i]);
+    for (uint256 i = 0; i < cards.length; i++) {
+      require(!requiredCardDeposited[projectId][poolId][cards[i].tokenId], "CardHandler: Duplicate required card");
+      cards[i].amount = validRequiredCardAmount[projectId][poolId][cards[i].tokenId];
+      require(cards[i].amount > 0, "CardHandler: Invalid required card token id");
+      poolCards.safeTransferFrom(user, address(this), cards[i].tokenId, cards[i].amount, "");
+      _userNft.push(cards[i]);
+      requiredCardDeposited[projectId][poolId][cards[i].tokenId] = true;
     }
   }
 
@@ -208,8 +222,10 @@ contract CardHandler is BaseStructs, Ownable, ERC721Holder, ERC1155Holder, ICard
     INFTVillageCards poolCards = poolcards[projectId];
 
     NftDeposit[] storage cards = userNftInfo[projectId][poolId][user].required;
-    for (uint256 i = 0; i < cards.length; i++)
+    for (uint256 i = 0; i < cards.length; i++) {
       poolCards.safeTransferFrom(address(this), user, cards[i].tokenId, cards[i].amount, "");
+      delete requiredCardDeposited[projectId][poolId][cards[i].tokenId];
+    }
     delete userNftInfo[projectId][poolId][user].required;
   }
 
