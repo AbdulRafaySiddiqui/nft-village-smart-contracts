@@ -99,6 +99,11 @@ contract CardHandler is BaseStructs, Ownable, ERC721Holder, ERC1155Holder, ICard
     uint256 _poolId,
     NftDeposit[] calldata _requiredCards
   ) external override onlyProjectHandler {
+    PoolInfo memory _pool = IProjectHandler(projectHandler).getPoolInfo(_projectId, _poolId);
+    require(
+      _pool.minRequiredCards <= _requiredCards.length,
+      "CardHandler: required card length must be equal to or greater than min required cards!"
+    );
     for (uint256 i = 0; i < _requiredCards.length; i++) {
       require(_requiredCards[i].amount > 0, "CardHandler: Invalid required card amount!");
       require(
@@ -149,7 +154,7 @@ contract CardHandler is BaseStructs, Ownable, ERC721Holder, ERC1155Holder, ICard
     PoolInfo memory _pool = IProjectHandler(projectHandler).getPoolInfo(projectId, poolId);
     NftDeposit[] storage _userNft = userNftInfo[projectId][poolId][user].required;
     if (_userNft.length == _pool.minRequiredCards) return; // required cards are already deposited, we can move on
-
+    require(cards.length == _pool.minRequiredCards, "CardHandler: Invalid required cards length");
     for (uint256 i = 0; i < cards.length; i++) {
       require(!requiredCardDeposited[projectId][poolId][cards[i].tokenId], "CardHandler: Duplicate required card");
       cards[i].amount = validRequiredCardAmount[projectId][poolId][cards[i].tokenId];
