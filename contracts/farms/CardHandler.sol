@@ -97,6 +97,7 @@ contract CardHandler is BaseStructs, Ownable, ERC721Holder, ERC1155Holder, ICard
   ) external override onlyProjectHandler {
     for (uint256 i = 0; i < _requiredCards.length; i++) {
       poolRequiredCards[_projectId][_poolId].push(_requiredCards[i]);
+      validRequiredCard[_projectId][_poolId][_requiredCards[i].tokenId] = true;
     }
   }
 
