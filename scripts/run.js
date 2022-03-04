@@ -52,7 +52,7 @@ async function main() {
   const tokenIds = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
   for (let i = 0; i < tokenIds.length; i++) {
-    await await poolCards.addMultiplierCard(tokenIds[i], 100 * i);
+    await (await poolCards.addMultiplierCard(tokenIds[i], 100 * i)).wait();
     console.log("minting", tokenIds[i]);
   }
   await (
