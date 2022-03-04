@@ -56,11 +56,14 @@ async function main() {
 
     const projectHandlerContract = await ethers.getContractFactory("ProjectHandler");
     const projectHandler = await projectHandlerContract.deploy(chief.address, deployer.address, PROJECT_FEE, POOL_FEE, REWARD_FEE, feeReceiver.address, feeReceiver.address, feeReceiver.address);
+    // const projectHandler = await projectHandlerContract.attach('0xbeD7c4467f3B8183361b60254bB695b2b2D4698E');
     console.log(`ProjectHandler: ${projectHandler.address}`)
 
     const cardHandlerContract = await ethers.getContractFactory("CardHandler");
     cardhandler = await cardHandlerContract.deploy(chief.address);
     console.log(`CardHandler: ${cardhandler.address}`)
+
+    await sleep(30)
 
     await chief.connect(deployer).setProjectAndCardHandler(projectHandler.address, cardhandler.address);
     console.log(`NFTVillageChief: Project And Card Handler updated!`)
@@ -74,6 +77,8 @@ async function main() {
     console.log(`NFTVillageToken: ${testToken.address}`)
     const testToken2 = await testTokenContract.deploy("NFTVillage Reward");
     console.log(`NFTVillage Test Token: ${testToken2.address}`)
+
+    await sleep(30)
 
     console.log(`Mint tokens`)
     await (await testToken.mint(user, utils.parseEther('100000000'))).wait()
@@ -106,7 +111,8 @@ async function main() {
     })
 
     const tokenIds = [0];
-    await (await poolCards.mintBatch(user, tokenIds, tokenIds.map(e => 100),[])).wait()
+    await (await poolCards.mintBatch(user, tokenIds, tokenIds.map(e => 5),[])).wait()
+    await (await poolCards.mintBatch(user2, tokenIds, tokenIds.map(e => 5),[])).wait()
     tokenIds.forEach(e => requiredCards.push({ tokenId: e, amount: 1 }))
     console.log('Require Cards Minted 1')
 
@@ -211,6 +217,8 @@ async function main() {
     //     )).wait()
 
     console.log('transactions done')
+
+    console.log(await projectHandler.getProjectInfo("0"))
 
     await hre.run('verify:verify', {
         address: chief.address,

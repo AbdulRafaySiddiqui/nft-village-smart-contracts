@@ -136,7 +136,7 @@ contract ProjectHandler is BaseStructs, IProjectHandler, Ownable {
     uint256 projectId,
     PoolInfo memory _pool,
     RewardInfo[] memory _rewardInfo,
-    NftDeposit[] calldata _requiredCards
+    NftDeposit[] memory _requiredCards
   ) external payable override {
     ProjectInfo storage project = projectInfo[projectId];
     require(msg.sender == project.admin, "ProjectHandler: Only Project Admin!");
