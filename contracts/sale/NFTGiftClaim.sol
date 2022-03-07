@@ -10,7 +10,7 @@ import "./BaseNFTSale.sol";
 
 contract NFTGiftClaim is Ownable, AccessControl, BaseNFTSale {
   address public nft;
-  mapping(address => bool) public userClaim;
+  mapping(address => mapping(uint256 => bool)) public userClaim;
 
   bytes32 public constant WHITELIST_SIGNER_ROLE = keccak256("WHITELIST_SIGNER_ROLE");
   bytes32 public CONTRIBUTION_TYPEHASH = keccak256("Claim(address user,uint256 tokenId,uint256 deadline)");
@@ -23,6 +23,7 @@ contract NFTGiftClaim is Ownable, AccessControl, BaseNFTSale {
 
   constructor(address _nft) {
     nft = _nft;
+    claimEnabled = true;
 
     uint256 chainId;
     assembly {
@@ -48,7 +49,7 @@ contract NFTGiftClaim is Ownable, AccessControl, BaseNFTSale {
     bytes32 s
   ) external {
     require(claimEnabled, "NFTGiftClaim: Claim disabled");
-    require(!userClaim[msg.sender], "NFTGiftClaim: ALready Claimed!");
+    require(!userClaim[msg.sender][tokenId], "NFTGiftClaim: ALready Claimed!");
 
     require(deadline >= block.timestamp, "NFTVillageWhitelist: Expired");
     bytes32 digest = keccak256(
@@ -63,13 +64,13 @@ contract NFTGiftClaim is Ownable, AccessControl, BaseNFTSale {
     require(hasRole(WHITELIST_SIGNER_ROLE, signer), "NFTVillageWhitelist: Invalid Signature");
 
     nftTransfer(nft, 1, address(this), msg.sender, tokenId, 1);
-    userClaim[msg.sender] = true;
+    userClaim[msg.sender][tokenId] = true;
 
     emit Claimed(msg.sender);
   }
 
-  function canClaim(address account) external view returns (bool) {
-    return userClaim[account];
+  function canClaim(address account, uint256 tokenId) external view returns (bool) {
+    return userClaim[account][tokenId];
   }
 
   function setClaimEnabled(bool _claimEnabled) external onlyOwner {
