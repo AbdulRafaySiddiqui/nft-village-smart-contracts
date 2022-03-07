@@ -23,6 +23,7 @@ contract NFTPackSale is Ownable, BaseNFTSale {
 
   Pack[] public packs;
   address payable public feeRecipient;
+  bool public allEnabled = true;
 
   event PackAdded(uint256 indexed price, bool indexed enabled, uint256[] indexed tokenIds);
   event PackSold(uint256 indexed packId, address indexed user);
@@ -58,6 +59,10 @@ contract NFTPackSale is Ownable, BaseNFTSale {
     packs[packId].enabled = enabled;
   }
 
+  function setAllEnabled(bool _enabled) external onlyOwner {
+    allEnabled = _enabled;
+  }
+
   function setPackPrice(uint256 packId, uint256 price) external onlyOwner {
     packs[packId].price = price;
   }
@@ -76,6 +81,7 @@ contract NFTPackSale is Ownable, BaseNFTSale {
 
   function buyPack(uint256 packId, uint256 quantity) external payable {
     Pack storage pack = packs[packId];
+    require(allEnabled, "NFTPackSale: Packs are disabled!");
     require(pack.enabled, "NFTPackSale: Pack disabled!");
     require(quantity > 0, "NFTPackSale: Pack Quantity should not be zero");
 

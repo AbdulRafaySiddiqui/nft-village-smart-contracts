@@ -10,11 +10,10 @@ import "./BaseNFTSale.sol";
 
 contract NFTGiftClaim is Ownable, AccessControl, BaseNFTSale {
   address public nft;
-  uint256 public constant NFT_ID = 0;
   mapping(address => bool) public userClaim;
 
   bytes32 public constant WHITELIST_SIGNER_ROLE = keccak256("WHITELIST_SIGNER_ROLE");
-  bytes32 public CONTRIBUTION_TYPEHASH = keccak256("Contribute(address user,uint256 deadline)");
+  bytes32 public CONTRIBUTION_TYPEHASH = keccak256("Claim(address user,uint256 tokenId,uint256 deadline)");
   bytes32 public DOMAIN_SEPARATOR;
 
   bool public claimEnabled;
@@ -42,6 +41,7 @@ contract NFTGiftClaim is Ownable, AccessControl, BaseNFTSale {
   }
 
   function claim(
+    uint256 tokenId,
     uint256 deadline,
     uint8 v,
     bytes32 r,
@@ -52,13 +52,17 @@ contract NFTGiftClaim is Ownable, AccessControl, BaseNFTSale {
 
     require(deadline >= block.timestamp, "NFTVillageWhitelist: Expired");
     bytes32 digest = keccak256(
-      abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, keccak256(abi.encode(CONTRIBUTION_TYPEHASH, msg.sender, deadline)))
+      abi.encodePacked(
+        "\x19\x01",
+        DOMAIN_SEPARATOR,
+        keccak256(abi.encode(CONTRIBUTION_TYPEHASH, msg.sender, tokenId, deadline))
+      )
     );
     address signer = ecrecover(digest, v, r, s);
 
     require(hasRole(WHITELIST_SIGNER_ROLE, signer), "NFTVillageWhitelist: Invalid Signature");
 
-    nftTransfer(nft, 1, address(this), msg.sender, NFT_ID, 1);
+    nftTransfer(nft, 1, address(this), msg.sender, tokenId, 1);
     userClaim[msg.sender] = true;
 
     emit Claimed(msg.sender);
