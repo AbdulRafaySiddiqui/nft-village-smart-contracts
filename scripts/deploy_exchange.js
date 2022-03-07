@@ -21,9 +21,12 @@ const name = 'NFT Village';
 const symbol = 'VLG';
 const uri = 'https://dc-metadata-api.herokuapp.com/api/{address}';
 
+const protocolAddress = '0x07e056FC48b3dfCfB1377f0f2AE786A636673Ee7'
+const realyerAddress = '0xc5343208819F9Ef830e471E8Cf3d79cb994B7590'
+
 const relayer = {
-    protocolFeeRecipient: '0xEC8e4B77c429DC80E1Df51d422274EA11B6274b1', // work account
-    relayerAddress: '0x3A9d3a9Dfb3106907eB09ff9DDE3Fea915Dc6F79', // dechains
+    protocolFeeRecipient: protocolAddress, // work account
+    relayerAddress: realyerAddress, // dechains
     relayerFee: 125,
     protocolFee: 125,
     referralFee: 0,
@@ -39,9 +42,9 @@ async function main() {
 
     const exchangeContract = await ethers.getContractFactory("NFTVillageExchange")
     // const exchange = await upgrades.deployProxy(exchangeContract, []);
-    await exchange.deployed();
+    // await exchange.deployed();
     // const exchange = await exchangeContract.attach('0x1ebd355b22eae4CB024Dea5EC82E79adf6421179')
-    // const exchange = await exchangeContract.attach('0xe29E577421aF9F70b94B056D2d8aEdF54DE82Acb')
+    const exchange = await exchangeContract.attach('0xe29E577421aF9F70b94B056D2d8aEdF54DE82Acb')
     console.log('Exchange: ', exchange.address)
 
     console.log(await (await exchange.registeredRelayers(relayer.relayerAddress)))
