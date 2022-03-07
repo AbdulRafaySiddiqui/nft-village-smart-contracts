@@ -22,13 +22,13 @@ const symbol = 'VLG';
 const uri = 'https://dc-metadata-api.herokuapp.com/api/{address}';
 
 const protocolAddress = '0x07e056FC48b3dfCfB1377f0f2AE786A636673Ee7'
-const realyerAddress = '0xc5343208819F9Ef830e471E8Cf3d79cb994B7590'
+const realyerAddress = '0x947F55f2323C31cC9cD143a808EB10656eEc1387'
 
 const relayer = {
     protocolFeeRecipient: protocolAddress, // work account
     relayerAddress: realyerAddress, // dechains
-    relayerFee: 125,
-    protocolFee: 125,
+    relayerFee: 150,
+    protocolFee: 150,
     referralFee: 0,
     referralSide: 0,
     referralEnabled: false,
@@ -47,8 +47,8 @@ async function main() {
     const exchange = await exchangeContract.attach('0xe29E577421aF9F70b94B056D2d8aEdF54DE82Acb')
     console.log('Exchange: ', exchange.address)
 
-    console.log(await (await exchange.registeredRelayers(relayer.relayerAddress)))
-    // await (await exchange.setRelayer(relayer)).wait()
+    // console.log(await (await exchange.registeredRelayers(relayer.relayerAddress)))
+    await (await exchange.setRelayer(relayer)).wait()
     console.log('registered relayer')
 
     //   const nftvillageContract = await ethers.getContractFactory("NFTVillageERC721");
