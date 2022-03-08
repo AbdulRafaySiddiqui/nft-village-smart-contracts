@@ -227,6 +227,7 @@ contract NFTVillageChief is BaseStructs, Ownable, ERC721Holder, ERC1155Holder {
     NftDeposit[] memory withdrawFeeCards,
     NftDeposit[] memory harvestCards,
     NftDeposit[] memory multiplierCards,
+    NftDeposit[] memory requireCards,
     address referrer
   ) external validatePoolByPoolId(projectId, poolId) nonReentrant inDeposit {
     ProjectInfo memory project = projectHandler.getProjectInfo(projectId);
@@ -246,7 +247,7 @@ contract NFTVillageChief is BaseStructs, Ownable, ERC721Holder, ERC1155Holder {
       referral.recordReferral(msg.sender, referrer);
     }
 
-    _depositCards(projectId, poolId, harvestCards, multiplierCards);
+    _depositCards(projectId, poolId, harvestCards, multiplierCards, requireCards);
 
     _updateShares(projectId, poolId);
     _updateRewardDebt(projectId, poolId);
@@ -288,13 +289,14 @@ contract NFTVillageChief is BaseStructs, Ownable, ERC721Holder, ERC1155Holder {
     uint256 projectId,
     uint256 poolId,
     NftDeposit[] memory harvestCards,
-    NftDeposit[] memory multiplierCards
+    NftDeposit[] memory multiplierCards,
+    NftDeposit[] memory requiredCards
   ) private {
     require(poolId < projectHandler.getProjectInfo(projectId).pools.length, "NFTVillageChief: Pool does not exist");
 
     UserInfo storage user = userInfo[projectId][poolId][msg.sender];
 
-    cardHandler.useCard(msg.sender, uint8(CardType.REQUIRED), projectId, poolId, new NftDeposit[](0)); // just a dummy value here, to be able to call the function
+    cardHandler.useCard(msg.sender, uint8(CardType.REQUIRED), projectId, poolId, requiredCards);
     uint256 harvestRelief = cardHandler.useCard(
       msg.sender,
       uint8(CardType.HARVEST_RELIEF),

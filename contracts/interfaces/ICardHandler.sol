@@ -39,6 +39,12 @@ interface ICardHandler is BaseStructs {
     NftDeposit[] calldata _requiredCards
   ) external;
 
+  function removePoolRequiredCard(
+    uint256 _projectId,
+    uint256 _poolId,
+    uint256 _tokenId
+  ) external;
+
   function useCard(
     address user,
     uint8 cardType,
