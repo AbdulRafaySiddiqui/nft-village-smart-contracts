@@ -56,11 +56,14 @@ async function main() {
 
     const projectHandlerContract = await ethers.getContractFactory("ProjectHandler");
     const projectHandler = await projectHandlerContract.deploy(chief.address, deployer.address, PROJECT_FEE, POOL_FEE, REWARD_FEE, feeReceiver.address, feeReceiver.address, feeReceiver.address);
+    // const projectHandler = await projectHandlerContract.attach('0xbeD7c4467f3B8183361b60254bB695b2b2D4698E');
     console.log(`ProjectHandler: ${projectHandler.address}`)
 
     const cardHandlerContract = await ethers.getContractFactory("CardHandler");
     cardhandler = await cardHandlerContract.deploy(chief.address);
     console.log(`CardHandler: ${cardhandler.address}`)
+
+    await sleep(30)
 
     await chief.connect(deployer).setProjectAndCardHandler(projectHandler.address, cardhandler.address);
     console.log(`NFTVillageChief: Project And Card Handler updated!`)
@@ -72,8 +75,10 @@ async function main() {
     const testTokenContract = await ethers.getContractFactory("TestToken");
     const testToken = await testTokenContract.deploy("NFTVillageToken");
     console.log(`NFTVillageToken: ${testToken.address}`)
-    const testToken2 = await testTokenContract.deploy("CryptoRunner Points");
+    const testToken2 = await testTokenContract.deploy("NFTVillage Reward");
     console.log(`NFTVillage Test Token: ${testToken2.address}`)
+
+    await sleep(30)
 
     console.log(`Mint tokens`)
     await (await testToken.mint(user, utils.parseEther('100000000'))).wait()
@@ -92,6 +97,7 @@ async function main() {
         harvestInterval: 0,
         stakedTokenStandard: 0,
         stakedTokenId: 0,
+        minRequiredCards: 1
     }
 
     rewardInfo.push({
@@ -105,14 +111,15 @@ async function main() {
     })
 
     const tokenIds = [0];
-    await (await poolCards.mintBatch(user, tokenIds, tokenIds.map(e => 100))).wait()
+    await (await poolCards.mintBatch(user, tokenIds, tokenIds.map(e => 5),[])).wait()
+    await (await poolCards.mintBatch(user2, tokenIds, tokenIds.map(e => 5),[])).wait()
     tokenIds.forEach(e => requiredCards.push({ tokenId: e, amount: 1 }))
     console.log('Require Cards Minted 1')
 
-    tokenIdToMint = 0
-    await (await poolCards.mint(user, tokenIdToMint, 1)).wait()
-    requiredCards.push({ tokenId: tokenIdToMint, amount: 1 });
-    console.log('Require Cards Minted 2')
+    // tokenIdToMint = 0
+    // await (await poolCards.mint(user, tokenIdToMint, 1)).wait()
+    // requiredCards.push({ tokenId: tokenIdToMint, amount: 1 });
+    // console.log('Require Cards Minted 2')
 
     // const _harvestCards = await poolCards.getHarvestReliefCards();
     // const _feediscount = await poolCards.getFeeDiscountCards();
@@ -155,28 +162,63 @@ async function main() {
     console.log('Project Initialized')
 
     // for test
-    await (await testToken.approve(chief.address, constants.MaxUint256)).wait(); console.log('approved')
-    await (await testToken2.approve(chief.address, constants.MaxUint256)).wait(); console.log('points approved')
-    await (await poolCards.setApprovalForAll(cardhandler.address, true)).wait(); console.log('pool cards approved')
-    await (await chief
-        .deposit(
-            0,
-            0,
-            utils.parseEther('100'),
-            feeCards.slice(0, 1),
-            feeCards.slice(1, feeCards.length - 1),
-            harvestCards,
-            multiplierCards,
-            0,
-            ZERO_ADDRESS
-        )).wait()
+    // await (await testToken.approve(chief.address, constants.MaxUint256)).wait(); console.log('approved')
+    // await (await testToken2.approve(chief.address, constants.MaxUint256)).wait(); console.log('points approved')
+    // await (await poolCards.setApprovalForAll(cardhandler.address, true)).wait(); console.log('pool cards approved')
+    // await (await chief
+    //     .deposit(
+    //         0,
+    //         0,
+    //         utils.parseEther('100'),
+    //         feeCards.slice(0, 1),
+    //         feeCards.slice(1, feeCards.length - 1),
+    //         harvestCards,
+    //         multiplierCards,
+    //         requiredCards,
+    //         ZERO_ADDRESS
+    //     )).wait()
 
-    console.log('deposite success')
+    // console.log('deposite success')
 
-    await (await chief.depositRewardToken(0, 0, 0, utils.parseEther('1000000'))).wait()
-    await (await chief.depositRewardToken(0, 1, 0, utils.parseEther('1000000'))).wait()
+    // await (await chief.depositRewardToken(0, 0, 0, utils.parseEther('1000000'))).wait()
+    // await (await chief.depositRewardToken(0, 1, 0, utils.parseEther('1000000'))).wait()
 
-    console.log('deposited reward tokens')
+    // console.log('deposited reward tokens')
+
+    // console.log('deposit again')
+    // await (await chief
+    //     .deposit(
+    //         0,
+    //         0,
+    //         utils.parseEther('100'),
+    //         feeCards.slice(0, 1),
+    //         feeCards.slice(1, feeCards.length - 1),
+    //         harvestCards,
+    //         multiplierCards,
+    //         requiredCards,
+    //         ZERO_ADDRESS
+    //     )).wait()
+
+    // console.log('withdraw')
+    // await (await chief.withdraw(0,0,utils.parseEther('200'))).wait()
+
+    // console.log('deposit again again')
+    // await (await chief
+    //     .deposit(
+    //         0,
+    //         0,
+    //         utils.parseEther('100'),
+    //         feeCards.slice(0, 1),
+    //         feeCards.slice(1, feeCards.length - 1),
+    //         harvestCards,
+    //         multiplierCards,
+    //         requiredCards,
+    //         ZERO_ADDRESS
+    //     )).wait()
+
+    console.log('transactions done')
+
+    console.log(await projectHandler.getProjectInfo("0"))
 
     await hre.run('verify:verify', {
         address: chief.address,
@@ -204,14 +246,10 @@ async function main() {
     })
 
     await hre.run('verify:verify', {
-        address: runToken.address,
-        constructorArguments: ["CryptoRunner"],
+        address: testToken.address,
+        constructorArguments: ['NFTVillageToken'],
     })
 
-    await hre.run('verify:verify', {
-        address: runPoints.address,
-        constructorArguments: ["CryptoRunner Points"],
-    })
 }
 
 main()

@@ -23,18 +23,21 @@ contract NFTVillageCardFeatures is Ownable, INFTVillageCardFeatures {
   event MutliplierCardRemoved(uint256 tokenId);
 
   function addHarvestReliefCard(uint256 _tokenId, uint256 _harvestRelief) external override {
+    require(_harvestRelief != 0, "POOLCARDS: Invalid _harvestRelief!");
     harvestReliefCards.push(_tokenId);
     harvestReliefs[_tokenId] = _harvestRelief;
     emit HarvestReliefCardAdded(_tokenId, _harvestRelief);
   }
 
   function addFeeDiscountCard(uint256 _tokenId, uint256 _feeDiscount) external override onlyOwner {
+    require(_feeDiscount != 0, "POOLCARDS: Invalid _feeDiscount!");
     feeDiscountCards.push(_tokenId);
     feeDiscounts[_tokenId] = _feeDiscount;
     emit FeeDiscountCardAdded(_tokenId, _feeDiscount);
   }
 
   function addMultiplierCard(uint256 _tokenId, uint256 _multiplier) external override onlyOwner {
+    require(_multiplier != 0, "POOLCARDS: Invalid _multiplier!");
     multiplierCards.push(_tokenId);
     multipliers[_tokenId] = _multiplier;
     emit MutliplierCardAdded(_tokenId, _multiplier);

@@ -136,7 +136,7 @@ contract ProjectHandler is BaseStructs, IProjectHandler, Ownable {
     uint256 projectId,
     PoolInfo memory _pool,
     RewardInfo[] memory _rewardInfo,
-    NftDeposit[] calldata _requiredCards
+    NftDeposit[] memory _requiredCards
   ) external payable override {
     ProjectInfo storage project = projectInfo[projectId];
     require(msg.sender == project.admin, "ProjectHandler: Only Project Admin!");
@@ -176,6 +176,7 @@ contract ProjectHandler is BaseStructs, IProjectHandler, Ownable {
     pool.minWithdrawlFee = _pool.minWithdrawlFee;
     pool.maxWithdrawlFee = _pool.maxWithdrawlFee;
     pool.withdrawlFeeReliefInterval = _pool.withdrawlFeeReliefInterval;
+    pool.minRequiredCards = _pool.minRequiredCards;
 
     RewardInfo[] storage __rewardInfo = rewardInfo[projectId][poolId];
     for (uint256 i = 0; i < _rewardInfo.length; i++) {
@@ -264,6 +265,26 @@ contract ProjectHandler is BaseStructs, IProjectHandler, Ownable {
     rewardFeeRecipient = recipient;
     rewardFee = fee;
     emit RewardFeeAndRecipientUpdated(address(recipient), fee);
+  }
+
+  function addPoolRequiredCards(
+    uint256 projectId,
+    uint256 poolId,
+    NftDeposit[] calldata requiredCards
+  ) external {
+    ProjectInfo storage project = projectInfo[projectId];
+    require(msg.sender == project.admin, "ProjectHandler: Only Project Admin!");
+    cardHandler.addPoolRequiredCards(projectId, poolId, requiredCards);
+  }
+
+  function removePoolRequiredCard(
+    uint256 projectId,
+    uint256 poolId,
+    uint256 tokenId
+  ) external {
+    ProjectInfo storage project = projectInfo[projectId];
+    require(msg.sender == project.admin, "ProjectHandler: Only Project Admin!");
+    cardHandler.removePoolRequiredCard(projectId, poolId, tokenId);
   }
 
   function projectLength() external view override returns (uint256) {
