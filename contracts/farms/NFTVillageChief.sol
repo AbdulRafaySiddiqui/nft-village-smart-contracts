@@ -356,6 +356,8 @@ contract NFTVillageChief is BaseStructs, Ownable, ERC721Holder, ERC1155Holder {
     } else if (pool.stakedTokenStandard == uint8(TokenStandard.ERC1155)) {
       cardHandler.ERC1155Transferfrom(pool.stakedToken, from, to, pool.stakedTokenId, amount);
       return from == address(this) ? amount / CARD_AMOUNT_MULTIPLIER : amount * CARD_AMOUNT_MULTIPLIER;
+    } else if (pool.stakedTokenStandard == uint8(TokenStandard.NONE)) {
+      return CARD_AMOUNT_MULTIPLIER;
     }
     return 0;
   }
