@@ -6,8 +6,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "../general/WithdrawAccidentallySentTokens.sol";
 
-contract NFTVillagePrivateSaleClaim is Ownable, AccessControl {
+contract NFTVillagePrivateSaleClaim is Ownable, AccessControl, WithdrawAccidentallySentTokens {
   using SafeERC20 for IERC20;
 
   IERC20 public token;
@@ -90,13 +91,5 @@ contract NFTVillagePrivateSaleClaim is Ownable, AccessControl {
 
   function revokeRewardSignerRole(address account) external onlyOwner {
     revokeRole(CLAIM_SIGNER_ROLE, account);
-  }
-
-  function drainAccidentallySentTokens(
-    IERC20 _token,
-    address recipient,
-    uint256 amount
-  ) external onlyOwner {
-    _token.transfer(recipient, amount);
   }
 }
