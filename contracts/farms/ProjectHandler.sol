@@ -145,8 +145,11 @@ contract ProjectHandler is BaseStructs, IProjectHandler, Ownable {
     uint256 fee = address(this).balance;
     poolFeeRecipient.onFeeReceived{value: fee}(address(0), fee);
 
-    require(_pool.stakedToken != address(0), "ProjectHandler: stakedToken is a zero address");
-    require(_pool.stakedTokenStandard < 3, "ProjectHandler: Invalid stakedTokenStandard");
+    require(
+      _pool.stakedToken != address(0) || TokenStandard(_pool.stakedTokenStandard) == TokenStandard.NONE,
+      "ProjectHandler: stakedToken is a zero address"
+    );
+    require(_pool.stakedTokenStandard < 4, "ProjectHandler: Invalid stakedTokenStandard");
     _pool.stakedAmount = 0;
     _pool.totalShares = 0;
     project.pools.push(_pool);
