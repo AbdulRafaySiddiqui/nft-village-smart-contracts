@@ -101,7 +101,7 @@ contract CardHandler is BaseStructs, Ownable, ERC721Holder, ERC1155Holder, ICard
   ) external override onlyProjectHandler {
     PoolInfo memory _pool = IProjectHandler(projectHandler).getPoolInfo(_projectId, _poolId);
     require(
-      _pool.minRequiredCards <= _requiredCards.length,
+      _pool.minRequiredCards <= _requiredCards.length + poolRequiredCards[_projectId][_poolId].length,
       "CardHandler: required card length must be equal to or greater than min required cards!"
     );
     for (uint256 i = 0; i < _requiredCards.length; i++) {
@@ -113,6 +113,28 @@ contract CardHandler is BaseStructs, Ownable, ERC721Holder, ERC1155Holder, ICard
       poolRequiredCards[_projectId][_poolId].push(_requiredCards[i]);
       validRequiredCardAmount[_projectId][_poolId][_requiredCards[i].tokenId] = _requiredCards[i].amount;
     }
+  }
+
+  function removePoolRequiredCard(
+    uint256 _projectId,
+    uint256 _poolId,
+    uint256 _tokenId
+  ) external override onlyProjectHandler {
+    PoolInfo memory _pool = IProjectHandler(projectHandler).getPoolInfo(_projectId, _poolId);
+    NftDeposit[] storage _requiredCards = poolRequiredCards[_projectId][_poolId];
+    require(
+      _pool.minRequiredCards <= _requiredCards.length - 1,
+      "CardHandler: required card length must be equal to or greater than min required cards!"
+    );
+    for (uint256 i = 0; i < _requiredCards.length; i++) {
+      if (_requiredCards[i].tokenId == _tokenId) {
+        poolRequiredCards[_projectId][_poolId][i] = poolRequiredCards[_projectId][_poolId][_requiredCards.length - 1];
+        poolRequiredCards[_projectId][_poolId].pop();
+        delete validRequiredCardAmount[_projectId][_poolId][_tokenId];
+        return;
+      }
+    }
+    revert("CardHandler: _tokenId not found");
   }
 
   function useCard(

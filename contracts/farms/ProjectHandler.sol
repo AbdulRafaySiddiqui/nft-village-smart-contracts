@@ -267,6 +267,26 @@ contract ProjectHandler is BaseStructs, IProjectHandler, Ownable {
     emit RewardFeeAndRecipientUpdated(address(recipient), fee);
   }
 
+  function addPoolRequiredCards(
+    uint256 projectId,
+    uint256 poolId,
+    NftDeposit[] calldata requiredCards
+  ) external {
+    ProjectInfo storage project = projectInfo[projectId];
+    require(msg.sender == project.admin, "ProjectHandler: Only Project Admin!");
+    cardHandler.addPoolRequiredCards(projectId, poolId, requiredCards);
+  }
+
+  function removePoolRequiredCard(
+    uint256 projectId,
+    uint256 poolId,
+    uint256 tokenId
+  ) external {
+    ProjectInfo storage project = projectInfo[projectId];
+    require(msg.sender == project.admin, "ProjectHandler: Only Project Admin!");
+    cardHandler.removePoolRequiredCard(projectId, poolId, tokenId);
+  }
+
   function projectLength() external view override returns (uint256) {
     return projectInfo.length;
   }
