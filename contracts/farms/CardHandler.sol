@@ -40,8 +40,8 @@ contract CardHandler is BaseStructs, Ownable, ERC721Holder, ERC1155Holder, ICard
   mapping(uint256 => mapping(uint256 => NftDeposit[])) public poolRequiredCards;
   // projectId => poolId => tokenId => amount
   mapping(uint256 => mapping(uint256 => mapping(uint256 => uint256))) public validRequiredCardAmount;
-  // projectId => poolId => tokenId => bool (true if card is deposited)
-  mapping(uint256 => mapping(uint256 => mapping(uint256 => bool))) public requiredCardDeposited;
+  // projectId => poolId => user => tokenId => bool (true if card is deposited)
+  mapping(uint256 => mapping(uint256 => mapping(address => mapping(uint256 => bool)))) public requiredCardDeposited;
 
   constructor(address _chief) {
     require(_chief != address(0), "CardHandler: NFTVillageChief zero address");
@@ -178,12 +178,15 @@ contract CardHandler is BaseStructs, Ownable, ERC721Holder, ERC1155Holder, ICard
     if (_userNft.length == _pool.minRequiredCards) return; // required cards are already deposited, we can move on
     require(cards.length == _pool.minRequiredCards, "CardHandler: Invalid required cards length");
     for (uint256 i = 0; i < cards.length; i++) {
-      require(!requiredCardDeposited[projectId][poolId][cards[i].tokenId], "CardHandler: Duplicate required card");
+      require(
+        !requiredCardDeposited[projectId][poolId][user][cards[i].tokenId],
+        "CardHandler: Duplicate required card"
+      );
       cards[i].amount = validRequiredCardAmount[projectId][poolId][cards[i].tokenId];
       require(cards[i].amount > 0, "CardHandler: Invalid required card token id");
       poolCards.safeTransferFrom(user, address(this), cards[i].tokenId, cards[i].amount, "");
       _userNft.push(cards[i]);
-      requiredCardDeposited[projectId][poolId][cards[i].tokenId] = true;
+      requiredCardDeposited[projectId][poolId][user][cards[i].tokenId] = true;
     }
   }
 
@@ -251,7 +254,7 @@ contract CardHandler is BaseStructs, Ownable, ERC721Holder, ERC1155Holder, ICard
     NftDeposit[] storage cards = userNftInfo[projectId][poolId][user].required;
     for (uint256 i = 0; i < cards.length; i++) {
       poolCards.safeTransferFrom(address(this), user, cards[i].tokenId, cards[i].amount, "");
-      delete requiredCardDeposited[projectId][poolId][cards[i].tokenId];
+      delete requiredCardDeposited[projectId][poolId][user][cards[i].tokenId];
     }
     delete userNftInfo[projectId][poolId][user].required;
   }

@@ -73,11 +73,11 @@ const getEpic = () => [
 // Legendary
 const getLegendary = () => [{ tokenId: 14, chest: 4, sale: 11 }];
 
-const COMMON_REWARD = utils.parseEther("1");
-const RARE_REWARD = utils.parseEther("20");
-const SUPER_RARE_REWARD = utils.parseEther("300");
-const EPIC_REWARD = utils.parseEther("4000");
-const LEGENDARY_REWARD = utils.parseEther("50000");
+const COMMON_REWARD = utils.parseEther("0");
+const RARE_REWARD = utils.parseEther("0");
+const SUPER_RARE_REWARD = utils.parseEther("0");
+const EPIC_REWARD = utils.parseEther("0");
+const LEGENDARY_REWARD = utils.parseEther("0");
 
 const getRewardInfo = (rewardToken, rewardPerBlock) => {
   return [
@@ -100,12 +100,12 @@ async function main() {
 
   const chiefContract = await ethers.getContractFactory("NFTVillageChief");
   // const chief = await chiefContract.deploy();
-  const chief = await chiefContract.attach("0xe46c8e75efD490Ad563874313CD199f0A18bB901");
+  const chief = await chiefContract.attach("0x9070334e4E2eF6aBf72a5b1E6B16D0b00b7e8EbA");
   console.log(`NFTVillageChief: ${chief.address}`);
 
   const feeReceiverContract = await ethers.getContractFactory("NFTVillageChiefFeeReceiver");
   // const feeReceiver = await feeReceiverContract.deploy();
-  const feeReceiver = await feeReceiverContract.attach("0x99FD2fb6369FcE464C891a86d22D0049290849c0");
+  const feeReceiver = await feeReceiverContract.attach("0xd836Ba91fd50f9367e3625Ca254DA7918DB484A0");
   console.log(`NFTVillageChiefFeeReceiver: ${feeReceiver.address}`);
 
   const projectHandlerContract = await ethers.getContractFactory("ProjectHandler");
@@ -119,49 +119,52 @@ async function main() {
   //   feeReceiver.address,
   //   feeReceiver.address
   // );
-  const projectHandler = await projectHandlerContract.attach("0x8c3268f5Cbd6d28187F2c05e2C786255209648a1");
+  const projectHandler = await projectHandlerContract.attach("0x9962fdA9cb6B0D20A05B20Bf170A6d4fA928b27f");
   console.log(`ProjectHandler: ${projectHandler.address}`);
 
   const cardHandlerContract = await ethers.getContractFactory("CardHandler");
   // cardhandler = await cardHandlerContract.deploy(chief.address);
-  cardhandler = await cardHandlerContract.attach("0xcdc20ff04FdDED5501d8CA2Ad2eCcbbfb0F95C0A");
+  cardhandler = await cardHandlerContract.attach("0x699183bCA2a550A582014455b024173Bd71fD1Cc");
   console.log(`CardHandler: ${cardhandler.address}`);
 
   // await chief.connect(deployer).setProjectAndCardHandler(projectHandler.address, cardhandler.address);
-  // console.log(`NFTVillageChief: Project And Card Handler updated!`);
+  console.log(`NFTVillageChief: Project And Card Handler updated!`);
 
-  const poolcardsContract = await ethers.getContractFactory("NFTVillageERC1155");
+  const poolCards = { address: "0x200D429421c53d75f0f9E4f92bC048c40915a9aa" };
+  const rewardToken = { address: "0x2f800cBdDA851b5df3A1C9E629538E49BB9547FF" };
+
+  // const poolcardsContract = await ethers.getContractFactory("NFTVillageERC1155");
   // const poolCards = await poolcardsContract.deploy("NFTVillageCards", "NFTV", tokenUri);
-  const poolCards = await poolcardsContract.attach("0xcD6cecbeCb5716C29Ccc1f291CFfEe88C272f3aB");
-  console.log(`NFTVillageERC1155: ${poolCards.address}`);
+  // // const poolCards = await poolcardsContract.attach("0x200D429421c53d75f0f9E4f92bC048c40915a9aa");
+  // console.log(`NFTVillageERC1155: ${poolCards.address}`);
 
-  const testTokenContract = await ethers.getContractFactory("TestToken");
+  // const testTokenContract = await ethers.getContractFactory("TestToken");
   // const rewardToken = await testTokenContract.deploy("MetaFlokiRush");
-  const rewardToken = await testTokenContract.attach("0xA8D12c669DC59D4b7C3119D9b663e69F84FaE08F");
-  console.log(`NFTVillageToken: ${rewardToken.address}`);
+  // // const rewardToken = await testTokenContract.attach("0x9e3B3927a11d4a136adf627888A9035DEfB0DA83");
+  // console.log(`NFTVillageToken: ${rewardToken.address}`);
 
   // console.log(`Mint tokens`);
   // await (await rewardToken.mint(user, utils.parseEther("100000000"))).wait();
   // await (await rewardToken.mint(user2, utils.parseEther("100000000"))).wait();
   // await (await rewardToken.mint(user3, utils.parseEther("100000000"))).wait();
 
-  // pool = {
-  //   stakedToken: rewardToken.address,
-  //   lockDeposit: false,
-  //   stakedAmount: 0,
-  //   totalShares: 0,
-  //   depositFee: 0,
-  //   minWithdrawlFee: 0,
-  //   maxWithdrawlFee: 0,
-  //   withdrawlFeeReliefInterval: 0,
-  //   minDeposit: MIN_DEPOSIT,
-  //   harvestInterval: 0,
-  //   stakedTokenStandard: 0,
-  //   stakedTokenId: 0,
-  //   minRequiredCards: 1,
-  // };
+  pool = {
+    stakedToken: ZERO_ADDRESS,
+    lockDeposit: false,
+    stakedAmount: 0,
+    totalShares: 0,
+    depositFee: 0,
+    minWithdrawlFee: 0,
+    maxWithdrawlFee: 0,
+    withdrawlFeeReliefInterval: 0,
+    minDeposit: MIN_DEPOSIT,
+    harvestInterval: 604800,
+    stakedTokenStandard: 3, //  TokenStandard.NONE
+    stakedTokenId: 0,
+    minRequiredCards: 1,
+  };
 
-  // const tokenIds = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17];
+  // const tokenIds = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15];
   // await (
   //   await poolCards.mintBatch(
   //     user,
@@ -172,81 +175,81 @@ async function main() {
   // ).wait();
   // console.log("Require Cards Minted");
 
-  // const { provider } = ethers;
-  // const block = await provider.getBlockNumber();
-  // await (
-  //   await projectHandler
-  //     .connect(deployer)
-  //     .addProject(deployer.address, 0, 0, block, poolCards.address, { value: PROJECT_FEE })
-  // ).wait();
-  // console.log("Project Added");
+  const { provider } = ethers;
+  const block = await provider.getBlockNumber();
+  await (
+    await projectHandler
+      .connect(deployer)
+      .addProject(deployer.address, 0, 0, block, poolCards.address, { value: PROJECT_FEE })
+  ).wait();
+  console.log("Project Added");
 
-  // // common
-  // await (
-  //   await projectHandler.connect(deployer).addPool(
-  //     0,
-  //     pool,
-  //     getRewardInfo(rewardToken.address, COMMON_REWARD),
-  //     getCommon().map((e) => {
-  //       return { tokenId: e.tokenId, amount: 1 };
-  //     }),
-  //     { value: POOL_FEE }
-  //   )
-  // ).wait();
-  // // rare
-  // await (
-  //   await projectHandler.connect(deployer).addPool(
-  //     0,
-  //     pool,
-  //     getRewardInfo(rewardToken.address, RARE_REWARD),
-  //     getRare().map((e) => {
-  //       return { tokenId: e.tokenId, amount: 1 };
-  //     }),
-  //     { value: POOL_FEE }
-  //   )
-  // ).wait();
-  // // super rare
-  // await (
-  //   await projectHandler.connect(deployer).addPool(
-  //     0,
-  //     pool,
-  //     getRewardInfo(rewardToken.address, SUPER_RARE_REWARD),
-  //     getSuperRare().map((e) => {
-  //       return { tokenId: e.tokenId, amount: 1 };
-  //     }),
-  //     { value: POOL_FEE }
-  //   )
-  // ).wait();
-  // // epic
-  // await (
-  //   await projectHandler.connect(deployer).addPool(
-  //     0,
-  //     pool,
-  //     getRewardInfo(rewardToken.address, EPIC_REWARD),
-  //     getEpic().map((e) => {
-  //       return { tokenId: e.tokenId, amount: 1 };
-  //     }),
-  //     { value: POOL_FEE }
-  //   )
-  // ).wait();
-  // // legendary
-  // await (
-  //   await projectHandler.connect(deployer).addPool(
-  //     0,
-  //     pool,
-  //     getRewardInfo(rewardToken.address, LEGENDARY_REWARD),
-  //     getLegendary().map((e) => {
-  //       return { tokenId: e.tokenId, amount: 1 };
-  //     }),
-  //     { value: POOL_FEE }
-  //   )
-  // ).wait();
-  // console.log("Pools Added");
+  // common
+  await (
+    await projectHandler.connect(deployer).addPool(
+      0,
+      pool,
+      getRewardInfo(rewardToken.address, COMMON_REWARD),
+      getCommon().map((e) => {
+        return { tokenId: e.tokenId, amount: 1 };
+      }),
+      { value: POOL_FEE }
+    )
+  ).wait();
+  // rare
+  await (
+    await projectHandler.connect(deployer).addPool(
+      0,
+      pool,
+      getRewardInfo(rewardToken.address, RARE_REWARD),
+      getRare().map((e) => {
+        return { tokenId: e.tokenId, amount: 1 };
+      }),
+      { value: POOL_FEE }
+    )
+  ).wait();
+  // super rare
+  await (
+    await projectHandler.connect(deployer).addPool(
+      0,
+      pool,
+      getRewardInfo(rewardToken.address, SUPER_RARE_REWARD),
+      getSuperRare().map((e) => {
+        return { tokenId: e.tokenId, amount: 1 };
+      }),
+      { value: POOL_FEE }
+    )
+  ).wait();
+  // epic
+  await (
+    await projectHandler.connect(deployer).addPool(
+      0,
+      pool,
+      getRewardInfo(rewardToken.address, EPIC_REWARD),
+      getEpic().map((e) => {
+        return { tokenId: e.tokenId, amount: 1 };
+      }),
+      { value: POOL_FEE }
+    )
+  ).wait();
+  // legendary
+  await (
+    await projectHandler.connect(deployer).addPool(
+      0,
+      pool,
+      getRewardInfo(rewardToken.address, LEGENDARY_REWARD),
+      getLegendary().map((e) => {
+        return { tokenId: e.tokenId, amount: 1 };
+      }),
+      { value: POOL_FEE }
+    )
+  ).wait();
+  console.log("Pools Added");
 
-  // await (await projectHandler.connect(deployer).initializeProject(0)).wait();
-  // console.log("Project Initialized");
+  await (await projectHandler.connect(deployer).initializeProject(0)).wait();
+  console.log("Project Initialized");
 
-  // // for test
+  // for test
   // await (await rewardToken.approve(chief.address, constants.MaxUint256)).wait();
   // console.log("approved");
   // await (await poolCards.setApprovalForAll(cardhandler.address, true)).wait();
@@ -272,15 +275,19 @@ async function main() {
 
   // console.log("deposited reward tokens");
 
+  // await chief.withdraw(0, 0, 1);
+
+  // console.log(await chief.userInfo(0, 0, deployer.address));
+
   await hre.run("verify:verify", {
     address: chief.address,
     constructorArguments: [],
   });
 
-  // await hre.run("verify:verify", {
-  //   address: feeReceiver.address,
-  //   constructorArguments: [],
-  // });
+  await hre.run("verify:verify", {
+    address: feeReceiver.address,
+    constructorArguments: [],
+  });
 
   await hre.run("verify:verify", {
     address: projectHandler.address,
@@ -301,15 +308,15 @@ async function main() {
     constructorArguments: [chief.address],
   });
 
-  await hre.run("verify:verify", {
-    address: poolCards.address,
-    constructorArguments: ["NFTVillageCards", "NFTV", tokenUri],
-  });
+  // await hre.run("verify:verify", {
+  //   address: poolCards.address,
+  //   constructorArguments: ["NFTVillageCards", "NFTV", tokenUri],
+  // });
 
-  await hre.run("verify:verify", {
-    address: rewardToken.address,
-    constructorArguments: ["MetaFlokiRush"],
-  });
+  // await hre.run("verify:verify", {
+  //   address: rewardToken.address,
+  //   constructorArguments: ["MetaFlokiRush"],
+  // });
 }
 
 main()
