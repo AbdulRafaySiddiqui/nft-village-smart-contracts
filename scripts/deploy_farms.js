@@ -358,23 +358,26 @@ async function main() {
 
   const tokenContract = await ethers.getContractFactory("TestToken");
   const token = await tokenContract.attach(rewardToken.address);
-  await (await token.approve(chief.address, constants.MaxUint256)).await();
-  console.log("approved");
+  // await (await token.approve(chief.address, constants.MaxUint256)).wait();
+  // console.log("approved");
 
-  await (await chief.depositRewardToken(0, 0, 0, COMMON_REWARD.mul(1000))).wait();
-  console.log("0");
-  await (await chief.depositRewardToken(0, 1, 0, RARE_REWARD.mul(1000))).wait();
-  console.log("1");
-  await (await chief.depositRewardToken(0, 2, 0, SUPER_RARE_REWARD.mul(1000))).wait();
-  console.log("2");
-  await (await chief.depositRewardToken(0, 3, 0, EPIC_REWARD.mul(1000))).wait();
-  console.log("3");
+  // await (await chief.depositRewardToken(0, 0, 0, COMMON_REWARD.mul(1000))).wait();
+  // console.log("0");
+  // await (await chief.depositRewardToken(0, 1, 0, RARE_REWARD.mul(1000))).wait();
+  // console.log("1");
+  // await (await chief.depositRewardToken(0, 2, 0, SUPER_RARE_REWARD.mul(1000))).wait();
+  // console.log("2");
+  // await (await chief.depositRewardToken(0, 3, 0, EPIC_REWARD.mul(1000))).wait();
+  // console.log("3");
   await (await chief.depositRewardToken(0, 4, 0, LEGENDARY_REWARD.mul(1000))).wait();
   console.log("4");
+  await sleep(10);
   await (await chief.depositRewardToken(0, 5, 0, SPECIAL_RARE_REWARD.mul(1000))).wait();
   console.log("5");
+  await sleep(10);
   await (await chief.depositRewardToken(0, 6, 0, SPECIAL_SUPER_RARE_REWARD.mul(1000))).wait();
   console.log("6");
+  await sleep(10);
   await (await chief.depositRewardToken(0, 7, 0, TOKEN_REWARD.mul(1000))).wait();
   console.log("7");
 }
