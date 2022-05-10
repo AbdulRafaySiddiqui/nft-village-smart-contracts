@@ -22,6 +22,7 @@ contract NFTVillageERC721 is IHasSecondarySaleFees, Context, Ownable, NFTVillage
   }
 
   string _uri;
+  uint256 public nextTokenId;
   mapping(uint256 => Fee[]) public fees;
 
   event SecondarySaleFees(uint256 tokenId, address[] recipients, uint256[] bps);
@@ -52,8 +53,15 @@ contract NFTVillageERC721 is IHasSecondarySaleFees, Context, Ownable, NFTVillage
     return result;
   }
 
+  function mint(address _to) external onlyOwner {
+    _safeMint(_to, nextTokenId);
+    addSecondaryFee(nextTokenId++, _fees);
+  }
+
   function mint(address _to, uint256 _id) external onlyOwner {
+    require(_id < nextTokenId, "Invalid Token ID");
     _safeMint(_to, _id);
+    addSecondaryFee(_id, _fees);
   }
 
   function setUri(string memory uri) external onlyOwner {

@@ -10,6 +10,7 @@ import "./NFTVillageCardFeatures.sol";
 contract NFTVillageERC1155 is IHasSecondarySaleFees, Ownable, NFTVillageCardFeatures, ERC1155 {
   string public name;
   string public symbol;
+  uint256 public nextTokenId;
 
   mapping(uint256 => address) public creators;
   mapping(uint256 => Fee[]) public fees;
@@ -62,10 +63,20 @@ contract NFTVillageERC1155 is IHasSecondarySaleFees, Ownable, NFTVillageCardFeat
 
   function mint(
     address _to,
+    uint256 _amount,
+    Fee[] memory _fees
+  ) external onlyOwner {
+    _mint(_to, nextTokenId, _amount, "");
+    addSecondaryFee(nextTokenId++, _fees);
+  }
+
+  function mint(
+    address _to,
     uint256 _id,
     uint256 _amount,
     Fee[] memory _fees
   ) external onlyOwner {
+    require(_id < nextTokenId, "Invalid Token ID");
     _mint(_to, _id, _amount, "");
     addSecondaryFee(_id, _fees);
   }
@@ -78,6 +89,7 @@ contract NFTVillageERC1155 is IHasSecondarySaleFees, Ownable, NFTVillageCardFeat
   ) external onlyOwner {
     _mintBatch(_to, _ids, amounts, "");
     for (uint256 i = 0; i < _fees.length; i++) {
+      require(_ids[i] < nextTokenId, "Invalid Token ID");
       addSecondaryFee(_ids[i], _fees[i]);
     }
   }
