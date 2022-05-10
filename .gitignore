@@ -6,7 +6,6 @@ artifacts
 archive
 test_archive
 bin
-*.config.js
 *.vscode
 .openzeppelin
 
