@@ -12,8 +12,8 @@ contract NFTVillageERC1155 is IHasSecondarySaleFees, Ownable, NFTVillageCardFeat
   string public symbol;
   uint256 public nextTokenId;
 
-  mapping(uint256 => address) public creators;
   mapping(uint256 => Fee[]) public fees;
+  mapping(uint256 => address) public creators;
 
   event SecondarySaleFees(uint256 tokenId, address[] recipients, uint256[] bps);
 
