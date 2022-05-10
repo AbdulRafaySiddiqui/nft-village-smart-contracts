@@ -8,7 +8,6 @@ test_archive
 bin
 *.config.js
 *.vscode
-hardhat.config.js
 .openzeppelin
 
 
