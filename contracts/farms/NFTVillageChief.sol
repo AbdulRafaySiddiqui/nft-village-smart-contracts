@@ -241,7 +241,6 @@ contract NFTVillageChief is BaseStructs, Ownable, ERC721Holder, ERC1155Holder {
     require(!project.paused, "NFTVillageChief: Project paused!");
     require(!pool.lockDeposit, "NFTVillageChief: Deposit locked!");
     require(pool.minDeposit <= amount || amount == 0, "NFTVillageChief: Deposit amount too low!");
-    require(pool.maxDeposit >= amount + user.amount || amount == 0, "NFTVillageChief: Deposit amount too high!");
 
     _updatePool(projectId, poolId);
     _payOrLockupPendingToken(projectId, poolId);
@@ -257,6 +256,8 @@ contract NFTVillageChief is BaseStructs, Ownable, ERC721Holder, ERC1155Holder {
 
     _updateShares(projectId, poolId);
     _updateRewardDebt(projectId, poolId);
+
+    require(pool.maxDeposit >= user.amount || amount == 0, "NFTVillageChief: Deposit amount too high!");
     emit Deposit(msg.sender, projectId, poolId, amount);
   }
 
