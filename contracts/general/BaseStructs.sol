@@ -56,6 +56,7 @@ interface BaseStructs {
     uint16 maxWithdrawlFee;
     uint16 withdrawlFeeReliefInterval;
     uint256 minDeposit;
+    uint256 maxDeposit;
     uint256 harvestInterval;
     uint256 minRequiredCards;
   }

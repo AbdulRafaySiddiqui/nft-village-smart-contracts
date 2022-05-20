@@ -232,10 +232,12 @@ contract NFTVillageChief is BaseStructs, Ownable, ERC721Holder, ERC1155Holder {
   ) external validatePoolByPoolId(projectId, poolId) nonReentrant inDeposit {
     ProjectInfo memory project = projectHandler.getProjectInfo(projectId);
     PoolInfo memory pool = project.pools[poolId];
+    UserInfo storage user = userInfo[projectId][poolId][msg.sender];
 
     require(!project.paused, "NFTVillageChief: Project paused!");
     require(!pool.lockDeposit, "NFTVillageChief: Deposit locked!");
     require(pool.minDeposit <= amount || amount == 0, "NFTVillageChief: Deposit amount too low!");
+    require(pool.maxDeposit >= amount + user.amount || amount == 0, "NFTVillageChief: Deposit amount too high!");
 
     _updatePool(projectId, poolId);
     _payOrLockupPendingToken(projectId, poolId);
