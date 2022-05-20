@@ -84,6 +84,8 @@ async function main() {
     await projectHandler.connect(deployer).addProject(
       // admin
       deployer.address,
+      // feeRecipient
+      PROJECT_ADMIN,
       // adminReward,
       0,
       // referralFee
@@ -110,7 +112,7 @@ async function main() {
           depositFee: 500,
         },
         // rewardInfo
-        [{ ...DEFAULT_REWARD_INFO, token: rewardToken.address, rewardPerBlock: utils.parseEther("0.1") }],
+        [{ ...DEFAULT_REWARD_INFO, token: rewardToken.address, rewardPerBlock: utils.parseEther("1") }],
         // requiredCards
         []
       )
