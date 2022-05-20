@@ -1,6 +1,6 @@
 const { utils, constants } = require("ethers");
 const { ethers } = require("hardhat");
-const { POOLS_INFO, DEFAULT_REWARD_INFO } = require("../config/config.js");
+const { POOLS_INFO, DEFAULT_REWARD_INFO, PROJECT_ADMIN } = require("../config/config.js");
 const hre = require("hardhat");
 
 const ROUTERS = {
@@ -77,19 +77,43 @@ async function main() {
   console.log(`RewardToken: ${rewardToken.address}`);
 
   const { provider } = ethers;
-  const block = await provider.getBlockNumber();
-  await (await projectHandler.connect(deployer).addProject(deployer.address, 0, 0, block, poolCards.address)).wait();
 
+  // ----------------------- ADD PROJECT ---------------------------- //
+  const block = await provider.getBlockNumber();
+  await (
+    await projectHandler.connect(deployer).addProject(
+      // admin
+      deployer.address,
+      // adminReward,
+      0,
+      // referralFee
+      0,
+      // startBlock
+      block,
+      // poolCards
+      constants.AddressZero
+    )
+  ).wait();
+
+  // --------------------------------- ADD POOLS -------------------------------- //
   for (let i = 0; i < POOLS_INFO.length; i++) {
     await (
-      await projectHandler
-        .connect(deployer)
-        .addPool(
-          0,
-          { ...POOLS_INFO[i], stakedToken: rewardToken.address },
-          [{ ...DEFAULT_REWARD_INFO, token: rewardToken.address, rewardPerBlock: utils.parseEther("0.1") }],
-          []
-        )
+      await projectHandler.connect(deployer).addPool(
+        // projectId
+        0,
+        // pool
+        {
+          ...POOLS_INFO[i],
+          stakedToken: rewardToken.address,
+          maxDeposit: utils.parseEther("1000"),
+          harvestInterval: 60 * 5,
+          depositFee: 500,
+        },
+        // rewardInfo
+        [{ ...DEFAULT_REWARD_INFO, token: rewardToken.address, rewardPerBlock: utils.parseEther("0.1") }],
+        // requiredCards
+        []
+      )
     ).wait();
     console.log("Pools Added ", i + 1);
   }
@@ -102,6 +126,11 @@ async function main() {
 
   await (await chief.depositRewardToken(0, 0, 0, utils.parseEther("100000000"))).wait();
   console.log("Tokens deposited");
+
+  await (await rewardToken.transfer(PROJECT_ADMIN, utils.parseEther("10000"))).wait();
+  console.log("transfered");
+
+  // --------------------------------- VERIFY CONTRACTS -------------------------------- //
 
   await sleep(100);
 

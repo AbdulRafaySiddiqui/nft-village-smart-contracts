@@ -16,6 +16,7 @@
     "compile": "npx hardhat compile",
     "clean": "npx hardhat clean",
     "deploy-farms": "npx hardhat run --network mainnet scripts/deploy_farms.js",
+    "deploy-farms:local": "npx hardhat run --network localhost scripts/deploy_farms.js",
     "format": "prettier --write \"contracts/**/*.sol\""
   },
   "dependencies": {

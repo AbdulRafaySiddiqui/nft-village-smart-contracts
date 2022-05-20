@@ -17,6 +17,7 @@ const DEFAULT_POOL = {
   maxWithdrawlFee: 0,
   withdrawlFeeReliefInterval: 0,
   minDeposit: 0,
+  maxDeposit: 0,
   harvestInterval: 0,
   stakedTokenStandard: TokenStandard.ERC20,
   stakedTokenId: 0,
@@ -42,10 +43,13 @@ const POOLS_INFO = [
 
 const NFTs = {};
 
+const PROJECT_ADMIN = "0x2c67F197b7403d655a1E96CD9cfcb81151AAAEdb";
+
 module.exports = {
   TokenStandard,
   DEFAULT_POOL,
   DEFAULT_REWARD_INFO,
+  PROJECT_ADMIN,
   POOLS_INFO,
   NFTs,
 };
