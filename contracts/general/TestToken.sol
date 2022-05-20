@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 // only for testing purpose
 contract TestToken is ERC20 {
   constructor(string memory symbol) ERC20("$TEST", symbol) {
-    _mint(msg.sender, 10000000e18);
+    _mint(msg.sender, 1_000_000_000_000e18);
   }
 
   function mint(address account, uint256 amount) external {

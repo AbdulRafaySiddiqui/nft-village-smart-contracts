@@ -15,12 +15,12 @@
   "scripts": {
     "compile": "npx hardhat compile",
     "clean": "npx hardhat clean",
-    "deploy-l": "npx hardhat run --network localhost scripts/deploy.js",
-    "deploy-g": "npx hardhat run --network goerli scripts/deploy.js",
+    "deploy-farms": "npx hardhat run --network mainnet scripts/deploy_farms.js",
     "format": "prettier --write \"contracts/**/*.sol\""
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.2.0",
-    "@openzeppelin/contracts-upgradeable": "^4.5.1"
+    "@openzeppelin/contracts-upgradeable": "^4.5.1",
+    "dotenv": "^16.0.1"
   }
 }

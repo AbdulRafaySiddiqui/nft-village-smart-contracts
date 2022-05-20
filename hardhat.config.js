@@ -1,4 +1,9 @@
+require('@nomiclabs/hardhat-waffle')
+require('@nomiclabs/hardhat-etherscan')
+require('dotenv').config()
+
 module.exports = {
+  defaultNetwork: 'hardhat',
   solidity: {
     compilers: [
       {
@@ -13,8 +18,8 @@ module.exports = {
     ],
   },
   networks: {
-    ropsten: {
-      url: process.env.ROPSTEN_URL || "",
+    mainnet: {
+      url: process.env.RPC_URL || "",
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
   },
