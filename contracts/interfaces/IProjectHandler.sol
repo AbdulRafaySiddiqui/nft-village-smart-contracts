@@ -34,6 +34,7 @@ interface IProjectHandler is BaseStructs {
 
   function addProject(
     address _admin,
+    address _feeRecipient,
     uint256 _adminReward,
     uint256 _referralFee,
     uint256 _startBlock,
@@ -43,6 +44,7 @@ interface IProjectHandler is BaseStructs {
   function setProject(
     uint256 projectId,
     address _admin,
+    address _feeRecipient,
     uint256 _adminReward,
     uint256 _referralFee,
     INFTVillageCards _poolCards

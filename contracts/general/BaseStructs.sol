@@ -34,6 +34,7 @@ interface BaseStructs {
 
   struct ProjectInfo {
     address admin;
+    address feeRecipient;
     uint256 adminReward;
     uint256 referralFee;
     uint256 rewardFee;

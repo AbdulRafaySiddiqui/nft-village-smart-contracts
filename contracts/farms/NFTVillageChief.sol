@@ -114,7 +114,11 @@ contract NFTVillageChief is BaseStructs, Ownable, ERC721Holder, ERC1155Holder {
     uint256 rewardId,
     uint256 amount
   ) external nonReentrant {
-    require(msg.sender == projectHandler.getProjectInfo(projectId).admin, "NFTVillageChief: Only project admin!");
+    require(
+      msg.sender == projectHandler.getProjectInfo(projectId).admin ||
+        msg.sender == projectHandler.getProjectInfo(projectId).feeRecipient,
+      "NFTVillageChief: Only project admin!"
+    );
     RewardInfo memory _rewardInfo = projectHandler.getRewardInfo(projectId, poolId)[rewardId];
     require(!_rewardInfo.mintable, "NFTVillageChief: Mintable!");
 
@@ -167,7 +171,7 @@ contract NFTVillageChief is BaseStructs, Ownable, ERC721Holder, ERC1155Holder {
           rewardFeeRecipient.onFeeReceived(address(_rewardInfo.token), devFee);
         }
         if (adminFee > 0) {
-          _rewardInfo.token.mint(project.admin, adminFee);
+          _rewardInfo.token.mint(project.feeRecipient, adminFee);
         }
         _rewardInfo.token.mint(address(rewardReserve), rewardAmount);
       } else {
@@ -182,7 +186,7 @@ contract NFTVillageChief is BaseStructs, Ownable, ERC721Holder, ERC1155Holder {
           rewardReserve.safeTransfer(_rewardInfo.token, address(rewardFeeRecipient), devFee);
           rewardFeeRecipient.onFeeReceived(address(_rewardInfo.token), devFee);
         }
-        if (adminFee > 0) rewardReserve.safeTransfer(_rewardInfo.token, project.admin, adminFee);
+        if (adminFee > 0) rewardReserve.safeTransfer(_rewardInfo.token, project.feeRecipient, adminFee);
         projectHandler.setRewardSupply(projectId, poolId, i, _rewardInfo.supply - totalRewards);
       }
       projectHandler.setLastRewardBlock(projectId, poolId, i, block.number);
@@ -335,7 +339,7 @@ contract NFTVillageChief is BaseStructs, Ownable, ERC721Holder, ERC1155Holder {
         (amount * pool.depositFee * (FEE_DENOMINATOR - user.depositFeeDiscount)) /
         FEE_DENOMINATOR /
         FEE_DENOMINATOR;
-    if (adminDepositFee > 0) _transferStakedToken(pool, address(this), project.admin, adminDepositFee);
+    if (adminDepositFee > 0) _transferStakedToken(pool, address(this), project.feeRecipient, adminDepositFee);
     user.amount += depositedAmount - adminDepositFee;
     projectHandler.setStakedAmount(projectId, poolId, pool.stakedAmount.add(depositedAmount).sub(adminDepositFee));
   }
@@ -431,7 +435,7 @@ contract NFTVillageChief is BaseStructs, Ownable, ERC721Holder, ERC1155Holder {
         uint256 feeAmount = (amountToTransfer * withdrawFee) / FEE_DENOMINATOR; // withdraw fee
         feeAmount = feeAmount - ((feeAmount * withdrawFeeDiscount) / FEE_DENOMINATOR); // withdraw fee after discount
         if (feeAmount > 0) {
-          _transferStakedToken(pool, address(this), project.admin, feeAmount);
+          _transferStakedToken(pool, address(this), project.feeRecipient, feeAmount);
           amountToTransfer = amountToTransfer - feeAmount;
         }
       }
