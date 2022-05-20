@@ -25,22 +25,32 @@ const sleep = async (s) => {
   }
 };
 
+const verify = async (contractAddress, args) => {
+  try {
+    await hre.run("verify:verify", {
+      address: contractAddress,
+      constructorArguments: args,
+    });
+  } catch (e) {
+    if (String(e).indexOf("Already verified") !== -1) console.log(contractAddress, " is already verified!");
+    else console.log(e);
+  }
+};
+
+const deploy = async (name, args = []) => {
+  const contractFactory = await ethers.getContractFactory(name);
+  const contract = await contractFactory.deploy(...args);
+  await contract.deployed();
+  console.log(`${name}: ${contract.address}`);
+};
+
 const tokenUri = "";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
 
-  const chiefContract = await ethers.getContractFactory("NFTVillageChief");
-  const chief = await chiefContract.deploy();
-  await chief.deployed();
-  console.log(`NFTVillageChief: ${chief.address}`);
-
-  const feeReceiverContract = await ethers.getContractFactory("NFTVillageChiefFeeReceiver");
-  const feeReceiver = await feeReceiverContract.deploy();
-  await feeReceiver.deployed();
-  console.log(`NFTVillageChiefFeeReceiver: ${feeReceiver.address}`);
-
-  const projectHandlerContract = await ethers.getContractFactory("ProjectHandler");
+  const chief = await deploy("NFTVillageChief");
+  const feeReceiver = await deploy("NFTVillageChiefFeeReceiver");
   const projectHandlerArgs = [
     chief.address,
     deployer.address,
@@ -51,30 +61,18 @@ async function main() {
     feeReceiver.address,
     feeReceiver.address,
   ];
-  const projectHandler = await projectHandlerContract.deploy(...projectHandlerArgs);
-  await projectHandler.deployed();
-  console.log(`ProjectHandler: ${projectHandler.address}`);
-
-  const cardHandlerContract = await ethers.getContractFactory("CardHandler");
+  const projectHandler = await deploy("ProjectHandler", projectHandlerArgs);
   const cardHandlerArgs = [chief.address];
-  const cardhandler = await cardHandlerContract.deploy(...cardHandlerArgs);
-  await cardhandler.deployed();
-  console.log(`CardHandler: ${cardhandler.address}`);
+  const cardhandler = await deploy("CardHandler", cardHandlerArgs);
 
   await chief.connect(deployer).setProjectAndCardHandler(projectHandler.address, cardhandler.address);
   console.log(`NFTVillageChief: Project And Card Handler updated!`);
 
-  const poolcardsContract = await ethers.getContractFactory("NFTVillageERC1155");
   const poolCardsArgs = ["NFTVillageCards", "NFTV", tokenUri];
-  const poolCards = await poolcardsContract.deploy(...poolCardsArgs);
-  await poolCards.deployed();
-  console.log(`NFTVillageERC1155: ${poolCards.address}`);
+  const poolCards = await deploy("NFTVillageERC1155", poolCardsArgs);
 
-  const testTokenContract = await ethers.getContractFactory("TestToken");
   const rewardTokenArgs = ["NFTVillageERC20"];
-  const rewardToken = await testTokenContract.deploy(...rewardTokenArgs);
-  await rewardToken.deployed();
-  console.log(`RewardToken: ${rewardToken.address}`);
+  const rewardToken = await deploy("TestToken", rewardTokenArgs);
 
   const { provider } = ethers;
 
@@ -120,6 +118,8 @@ async function main() {
     console.log("Pools Added ", i + 1);
   }
 
+  await sleep(100);
+
   await (await projectHandler.connect(deployer).initializeProject(0)).wait();
   console.log("Project Initialized");
 
@@ -133,33 +133,14 @@ async function main() {
   console.log("transfered");
 
   // --------------------------------- VERIFY CONTRACTS -------------------------------- //
-
   await sleep(100);
 
-  await hre.run("verify:verify", {
-    address: chief.address,
-    constructorArguments: [],
-  });
-  await hre.run("verify:verify", {
-    address: feeReceiver.address,
-    constructorArguments: [],
-  });
-  await hre.run("verify:verify", {
-    address: projectHandler.address,
-    constructorArguments: projectHandlerArgs,
-  });
-  await hre.run("verify:verify", {
-    address: cardhandler.address,
-    constructorArguments: cardHandlerArgs,
-  });
-  await hre.run("verify:verify", {
-    address: poolCards.address,
-    constructorArguments: poolCardsArgs,
-  });
-  await hre.run("verify:verify", {
-    address: rewardToken.address,
-    constructorArguments: rewardTokenArgs,
-  });
+  await verify(chief.address, []);
+  await verify(feeReceiver.address, []);
+  await verify(projectHandler.address, projectHandlerArgs);
+  await verify(cardhandler.address, cardHandlerArgs);
+  await verify(poolCards.address, poolCardsArgs);
+  await verify(rewardToken.address, rewardTokenArgs);
 }
 
 main()
