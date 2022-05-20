@@ -94,6 +94,7 @@ contract ProjectHandler is BaseStructs, IProjectHandler, Ownable {
 
   function addProject(
     address _admin,
+    address _feeRecipient,
     uint256 _adminReward,
     uint256 _referralFee,
     uint256 _startBlock,
@@ -109,6 +110,7 @@ contract ProjectHandler is BaseStructs, IProjectHandler, Ownable {
     ProjectInfo storage project = projectInfo[projectInfo.length - 1];
     project.paused = true;
     project.admin = _admin;
+    project.feeRecipient = _feeRecipient;
     project.adminReward = _adminReward;
     project.referralFee = _referralFee;
     project.startBlock = _startBlock == 0 ? block.number : _startBlock;
@@ -118,6 +120,7 @@ contract ProjectHandler is BaseStructs, IProjectHandler, Ownable {
   function setProject(
     uint256 projectId,
     address _admin,
+    address _feeRecipient,
     uint256 _adminReward,
     uint256 _referralFee,
     INFTVillageCards _poolCards
@@ -127,6 +130,7 @@ contract ProjectHandler is BaseStructs, IProjectHandler, Ownable {
     require(_admin != address(0), "ProjectHandler: Invalid Admin!");
 
     project.admin = _admin;
+    project.feeRecipient = _feeRecipient;
     project.adminReward = _adminReward;
     project.referralFee = _referralFee;
     cardHandler.setPoolCard(projectId, _poolCards);
