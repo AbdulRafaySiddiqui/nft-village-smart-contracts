@@ -25,23 +25,52 @@ const sleep = async (s) => {
   }
 };
 
-const verify = async (contractAddress, args) => {
+const verify = async (contractAddress, args = [], name, wait = 100) => {
   try {
     await hre.run("verify:verify", {
       address: contractAddress,
       constructorArguments: args,
     });
+    return true;
   } catch (e) {
-    if (String(e).indexOf("Already verified") !== -1) console.log(contractAddress, " is already verified!");
-    else console.log(e);
+    if (
+      String(e).indexOf(`${contractAddress} has no bytecode`) !== -1 ||
+      String(e).indexOf(`${contractAddress} does not have bytecode`) !== -1
+    ) {
+      console.log(`Verification failed, waiting ${wait} seconds for etherscan to pick the deployed contract`);
+      await sleep(wait);
+    }
+
+    try {
+      await hre.run("verify:verify", {
+        address: contractAddress,
+        constructorArguments: args,
+      });
+      return true;
+    } catch (e) {
+      if (String(e).indexOf("Already Verified") !== -1 || String(e).indexOf("Already verified") !== -1) {
+        console.log(name ?? contractAddress, "is already verified!");
+        return true;
+      } else {
+        console.log(e);
+        return false;
+      }
+    }
   }
 };
 
-const deploy = async (name, args = []) => {
+const deploy = async (name, args = [], shouldVerify = true, verificationWait = 100) => {
   const contractFactory = await ethers.getContractFactory(name);
   const contract = await contractFactory.deploy(...args);
   await contract.deployed();
   console.log(`${name}: ${contract.address}`);
+
+  if (hre.network.name === "localhost" || !shouldVerify) return contract;
+
+  console.log("Verifying...");
+  await verify(contract.address, args, name, verificationWait);
+
+  return contract;
 };
 
 const tokenUri = "";
@@ -131,16 +160,6 @@ async function main() {
 
   await (await rewardToken.transfer(PROJECT_ADMIN, utils.parseEther("10000"))).wait();
   console.log("transfered");
-
-  // --------------------------------- VERIFY CONTRACTS -------------------------------- //
-  await sleep(100);
-
-  await verify(chief.address, []);
-  await verify(feeReceiver.address, []);
-  await verify(projectHandler.address, projectHandlerArgs);
-  await verify(cardhandler.address, cardHandlerArgs);
-  await verify(poolCards.address, poolCardsArgs);
-  await verify(rewardToken.address, rewardTokenArgs);
 }
 
 main()
