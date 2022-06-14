@@ -91,8 +91,9 @@ const relayer = {
 
 async function main() {
   const [deployer] = await ethers.getSigners();
+
   const exchangeContract = await ethers.getContractFactory("NFTVillageExchange");
-  const exchange = await exchangeContract.deployProxy(exchangeContract, []);
+  const exchange = await upgrades.deployProxy(exchangeContract, []);
   await exchange.deployed();
   console.log("Exchange: ", exchange.address);
 
