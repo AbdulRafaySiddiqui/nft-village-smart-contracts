@@ -1,5 +1,5 @@
 {
-  "name": "elevantis-contracts",
+  "name": "nft-village-smart-contracts",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",
     "@nomiclabs/hardhat-etherscan": "^2.1.1",
